@@ -1,39 +1,47 @@
-package com.devsuperior.dsdeliver.demo.entities;
+package com.devsuperior.dsdeliver.demo.dto;
 
-import javax.persistence.*;
+import com.devsuperior.dsdeliver.demo.entities.Order;
+import com.devsuperior.dsdeliver.demo.entities.OrderStatus;
+import com.devsuperior.dsdeliver.demo.entities.Product;
+
+import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import javax.persistence.Id;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Entity
-@Table(name="tb_order")
-public class Order {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class OrderDTO implements Serializable {
     private Long id;
     private String address;
     private Double latitude;
     private Double longitude;
     private Instant moment;
     private OrderStatus status;
+    List<ProductDTO> products = new ArrayList<>();
 
+    public OrderDTO(){
 
-    @ManyToMany
-    @JoinTable(name ="tb_order_product", joinColumns = @JoinColumn(name="order_id"), inverseJoinColumns = @JoinColumn(name="product_id"))
-    private Set<Product> products = new HashSet<>();
-
-    public Order(){
     }
 
-    public Order(Long id, String address, Double latitude, Double longitude, Instant moment, OrderStatus status) {
+    public OrderDTO(Long id, String address, Double latitude, Double longitude, Instant moment, OrderStatus status) {
         this.id = id;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
         this.moment = moment;
         this.status = status;
+
+
+    }
+
+    public OrderDTO(Order entity) {
+        id = entity.getId();
+        address = entity.getAddress();
+        latitude = entity.getLatitude();
+        longitude = entity.getLongitude();
+        moment = entity.getMoment();
+        status = entity.getStatus();
+        products = entity.getProducts().stream().map(x -> new ProductDTO(x)).collect(Collectors.toList());
     }
 
     public Long getId() {
@@ -84,20 +92,8 @@ public class Order {
         this.status = status;
     }
 
-    public Set<Product> getProducts() {
+    public List<ProductDTO> getProducts() {
         return products;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Order order = (Order) o;
-        return Objects.equals(id, order.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }
